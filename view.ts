@@ -1,11 +1,16 @@
 import { FileView, TFile, WorkspaceLeaf } from "obsidian";
 import * as alphaTab from "@coderline/alphatab";
-import { model, type Settings } from "@coderline/alphatab";
+import {
+	model,
+	type Settings,
+	type RenderingResources,
+} from "@coderline/alphatab";
 
 export const VIEW_TYPE_GTP = "gtp-view";
 export class GTPView extends FileView {
 	score: model.Score;
 	alphaTabSettings: Settings;
+	darkMode: boolean;
 
 	constructor(leaf: WorkspaceLeaf) {
 		super(leaf);
@@ -24,6 +29,7 @@ export class GTPView extends FileView {
 	}
 
 	parseGTPContent() {
+		this.darkMode = document.body?.className?.includes?.("theme-dark");
 		// 1. Setup settings
 		this.alphaTabSettings = new alphaTab.Settings();
 		this.alphaTabSettings.display.scale = 0.8;
@@ -36,8 +42,30 @@ export class GTPView extends FileView {
 			enableUserInteraction: true,
 			scrollElement: this.contentEl,
 		};
-
-		// this.alphaTabSettings.display.
+		const themeResources = (
+			this.darkMode
+				? {
+						staffLineColor: new model.Color(221, 221, 221), // 六线谱线的颜色
+						barSeparatorColor: new model.Color(221, 221, 221), // 小节分隔符颜色
+						barNumberColor: new model.Color(100, 108, 255), // 小节号的颜色
+						mainGlyphColor: new model.Color(238, 238, 238), // 主要音符的颜色
+						secondaryGlyphColor: new model.Color(232, 232, 232), // 次要音符的颜色
+						scoreInfoColor: new model.Color(248, 248, 248), // 歌曲信息的颜色
+				  }
+				: {
+						staffLineColor: new model.Color(34, 34, 34), // 六线谱线的颜色
+						barSeparatorColor: new model.Color(34, 34, 34), // 小节分隔符颜色
+						barNumberColor: new model.Color(100, 108, 255), // 小节号的颜色
+						mainGlyphColor: new model.Color(17, 17, 17), // 主要音符的颜色
+						secondaryGlyphColor: new model.Color(24, 24, 24), // 次要音符的颜色
+						scoreInfoColor: new model.Color(8, 8, 8), // 歌曲信息的颜色
+				  }
+		) as RenderingResources;
+		this.alphaTabSettings.display.resources = {
+			...this.alphaTabSettings.display.resources,
+			...themeResources,
+		};
+		console.log('lnz alphaTabSettings', this.alphaTabSettings);
 
 		// 2. Setup renderer
 		const renderer = new alphaTab.rendering.ScoreRenderer(
