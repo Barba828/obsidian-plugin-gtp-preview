@@ -1,7 +1,7 @@
 {
 	"name": "gtp-preview",
 	"version": "1.0.3",
-	"description": "Obsidian plugin which support rendering gtp/gp/gp5/gpx files",
+	"description": "Plugin which support rendering gtp/gp/gp5/gpx files.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
