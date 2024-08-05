@@ -65,7 +65,6 @@ export class GTPView extends FileView {
 			...this.alphaTabSettings.display.resources,
 			...themeResources,
 		};
-		console.log('lnz alphaTabSettings', this.alphaTabSettings);
 
 		// 2. Setup renderer
 		const renderer = new alphaTab.rendering.ScoreRenderer(
@@ -99,13 +98,8 @@ export class GTPView extends FileView {
 		const content = this.parseGTPContent();
 
 		this.contentEl.empty();
-		const div = this.contentEl.createDiv();
-		div.innerHTML = content;
-		div.style.height = "unset";
-		div.style.width = "600px";
-		div.style.margin = "auto";
-		div.style.overflow = "visible";
-		this.contentEl.style.overflow = "scroll";
+		const div = this.contentEl.createDiv('at-container-svgs');
+		div.insertAdjacentHTML("afterbegin", content);
 	}
 
 	// onResize() {
@@ -119,7 +113,10 @@ export class GTPView extends FileView {
 	}
 
 	async onLoadFile(file: TFile) {
-		this.contentEl.innerHTML = "Loading GTP...";
+		this.contentEl.createEl("div", {
+			text: "Loading GTP...",
+			cls: "at at-container-loading",
+		});
 		const buffer = await this.app.vault.readBinary(file);
 		const gtpUint8Array = new Uint8Array(buffer);
 

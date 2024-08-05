@@ -1,6 +1,6 @@
 {
 	"name": "gtp-preview",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Plugin which support rendering gtp/gp/gp5/gpx files.",
 	"main": "main.js",
 	"scripts": {
