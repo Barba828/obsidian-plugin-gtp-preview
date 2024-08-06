@@ -1,7 +1,7 @@
 {
-	"name": "gtp-preview",
+	"name": "obsidian-plugin-gtp-preview",
 	"version": "1.0.4",
-	"description": "Plugin which support rendering gtp/gp/gp5/gpx files.",
+	"description": "Supports rendering of GuitarPro files such as `gtp/gp/gp5/gpx`.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

@@ -1,7 +1,13 @@
 # Obsidian Guitar Pro Preview Plugin
 
-This is a gtp preview plugin for Obsidian (https://obsidian.md). And based on AlphaTab(https://alphatab.net/).
+[Obsidian](https://obsidian.md) plugin which renders `Guitar Pro` files (`gtp/gp/gp5/gpx`).
+Based on AlphaTab(https://alphatab.net/).
 
 ## Examples
-You can directly open the gtp file in obsidian.
-![screen](assets/screenshot.png)
+1. Open the `Guitar Pro` file directly.
+![screen](.docs/screenshot_1.png)
+
+2. Change the track, and support rendering multiple tracks.
+![screen](.docs/screenshot_2.png)
+
+3. Download midi file.

@@ -1,20 +1,30 @@
-import { FileView, TFile, WorkspaceLeaf } from "obsidian";
+import { FileView, Notice, TFile, WorkspaceLeaf } from "obsidian";
 import * as alphaTab from "@coderline/alphatab";
 import {
 	model,
+	type AlphaTabApi,
 	type Settings,
 	type RenderingResources,
 } from "@coderline/alphatab";
+import { TracksModal } from "./tracks-modal";
 
 export const VIEW_TYPE_GTP = "gtp-view";
 export class GTPView extends FileView {
 	score: model.Score;
 	alphaTabSettings: Settings;
+	renderTracks: AlphaTabApi["tracks"];
+
 	darkMode: boolean;
+	tracksModal: TracksModal;
 
 	constructor(leaf: WorkspaceLeaf) {
 		super(leaf);
-		// this.addAction("file", "Open GTP File", () => {});
+
+		this.tracksModal = new TracksModal(this.app, [], this.onChangeTracks);
+		this.addAction("music", "Set Instrument", () =>
+			this.tracksModal.open()
+		);
+		this.addAction("download", "Download Midi File", this.downloadMidi);
 	}
 
 	getViewType(): string {
@@ -89,7 +99,8 @@ export class GTPView extends FileView {
 		});
 
 		// 4. Virtual Render
-		renderer.renderScore(this.score, [0]);
+		// renderer.renderScore(this.score, [0]);
+		renderer.renderTracks(this.renderTracks);
 
 		return svgChunks.map((c) => c.svg).join("\n");
 	}
@@ -97,34 +108,79 @@ export class GTPView extends FileView {
 	renderGTP() {
 		const content = this.parseGTPContent();
 
+		// clean content
 		this.contentEl.empty();
-		const div = this.contentEl.createDiv('at-container-svgs');
+		const div = this.contentEl.createDiv("at-container-svgs");
+		// insert svg to content
 		div.insertAdjacentHTML("afterbegin", content);
 	}
 
-	// onResize() {
-	// 	super.onResize();
-	// 	this.renderGTP();
-	// }
+	/**
+	 * loaded file to render gtp
+	 * 文件加载完成 callback 自动调用，加载 gtp 读取 score，默认渲染 score 中第一个轨道
+	 * @param file
+	 */
+	async onLoadFile(file: TFile) {
+		// 0.loading
+		this.contentEl.createEl("div", {
+			text: "Loading GTP...",
+			cls: "at at-container-loading",
+		});
+
+		// 1.load gtp
+		const buffer = await this.app.vault.readBinary(file);
+		const gtpUint8Array = new Uint8Array(buffer);
+		this.score = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
+			gtpUint8Array,
+			this.alphaTabSettings
+		);
+		// 2.set tracks and render fisrt track default
+		this.renderTracks = [this.score.tracks[0]];
+		this.tracksModal.setTracks(this.score.tracks);
+		this.tracksModal.setRenderTracks([this.score.tracks[0]]);
+
+		// 3.render gtp
+		this.renderGTP();
+	}
 
 	onUnloadFile(file: TFile): Promise<void> {
 		this.contentEl.empty();
 		return super.onUnloadFile(file);
 	}
 
-	async onLoadFile(file: TFile) {
-		this.contentEl.createEl("div", {
-			text: "Loading GTP...",
-			cls: "at at-container-loading",
-		});
-		const buffer = await this.app.vault.readBinary(file);
-		const gtpUint8Array = new Uint8Array(buffer);
-
-		this.score = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
-			gtpUint8Array,
-			this.alphaTabSettings
+	downloadMidi = () => {
+		const midiFile = new alphaTab.midi.MidiFile();
+		const handler = new alphaTab.midi.AlphaSynthMidiFileHandler(
+			midiFile,
+			true /* For SMF1.0 export */
+		);
+		const generator = new alphaTab.midi.MidiFileGenerator(
+			this.score,
+			this.alphaTabSettings,
+			handler
 		);
 
+		// start generation
+		generator.generate();
+		// use midi file
+		const fileName = `${this.getDisplayText()}.mid`;
+		const blob = new Blob([midiFile.toBinary()], { type: "audio/midi" });
+		saveToFile(fileName, blob);
+	};
+
+	onChangeTracks = (selectTracks: AlphaTabApi["tracks"]) => {
+		this.renderTracks = selectTracks;
 		this.renderGTP();
-	}
+	};
+}
+
+function saveToFile(fileName: string, blob: Blob) {
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = fileName;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
 }
