@@ -1,5 +1,5 @@
 import { GTPView, VIEW_TYPE_GTP } from "./src/view";
-import { Plugin, Menu, Notice } from "obsidian";
+import { Plugin } from "obsidian";
 
 export default class ExamplePlugin extends Plugin {
 	async onload() {

@@ -33,13 +33,15 @@
 
 .at-container-svgs {
     height: unset;
-    width: 600px;
+    width: min-content;
     margin: auto;
     overflow: visible;
 }
 
-.view-content {
+.gtp-preview-container .view-content {
     overflow-y: scroll;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .tracks-modal {
