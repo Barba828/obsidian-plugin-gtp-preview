@@ -23,10 +23,10 @@ export class GTPView extends FileView {
 
 		this.containerEl.addClass("gtp-preview-container");
 		this.tracksModal = new TracksModal(this.app, [], this.onChangeTracks);
-		this.addAction("music", "Set Instrument", () =>
+		this.addAction("music", "Set instrument", () =>
 			this.tracksModal.open()
 		);
-		this.addAction("download", "Download Midi File", this.downloadMidi);
+		this.addAction("download", "Download midi file", this.downloadMidi);
 		// this.addAction("play", "Play", this.playMidi);
 	}
 
